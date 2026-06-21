@@ -1,0 +1,45 @@
+@page
+@model FUNewsManagement.RazorPages.Pages.Profile.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Profile";
+}
+
+<h2>My Profile</h2>
+
+@if (!string.IsNullOrEmpty(Model.SuccessMessage))
+{
+    <div class="alert alert-success">@Model.SuccessMessage</div>
+}
+
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">@Model.ErrorMessage</div>
+}
+
+<div class="card">
+    <div class="card-header">
+        <h5>Profile Information</h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            <div class="mb-3">
+                <label class="form-label">Role</label>
+                <input type="text" class="form-control" value="@(Model.Account?.AccountRole == 0 ? "Administrator" : Model.Account?.AccountRole == 1 ? "Staff" : "Lecturer")" readonly />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Name *</label>
+                <input type="text" class="form-control" asp-for="AccountName" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Email *</label>
+                <input type="email" class="form-control" asp-for="Email" required />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">New Password (leave blank to keep current)</label>
+                <input type="password" class="form-control" asp-for="NewPassword" />
+            </div>
+            <button type="submit" class="btn btn-primary">Update Profile</button>
+        </form>
+    </div>
+</div>

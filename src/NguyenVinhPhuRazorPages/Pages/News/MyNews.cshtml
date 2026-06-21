@@ -1,0 +1,52 @@
+@page
+@model FUNewsManagement.RazorPages.Pages.News.MyNewsModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "My News";
+}
+
+<h2>My News History</h2>
+
+@if (!Model.NewsArticles.Any())
+{
+    <div class="alert alert-info">You haven't created any news articles yet.</div>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Headline</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Created Date</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var news in Model.NewsArticles)
+            {
+                <tr>
+                    <td>@news.NewsArticleID</td>
+                    <td>@news.Headline</td>
+                    <td>@news.Category?.CategoryName</td>
+                    <td>
+                        @if (news.NewsStatus == true)
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Inactive</span>
+                        }
+                    </td>
+                    <td>@news.CreatedDate?.ToString("yyyy-MM-dd")</td>
+                    <td>
+                        <a class="btn btn-sm btn-info" href="/News/Details/@news.NewsArticleID">View</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}

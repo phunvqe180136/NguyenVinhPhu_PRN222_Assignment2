@@ -1,0 +1,78 @@
+﻿@page
+@model FUNewsManagement.RazorPages.Pages.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Home";
+}
+@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    var role = HttpContextAccessor.HttpContext?.Session.GetString("AccountRole");
+}
+
+<div class="text-center mb-5">
+    <h1 class="display-4">Welcome to FU News Management System</h1>
+    <p class="lead">Manage news articles, categories, and accounts efficiently.</p>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">News Management</h5>
+                <p class="card-text">Create, edit, and manage news articles with real-time updates.</p>
+                <a href="/News/Index" class="btn btn-primary">View News</a>
+            </div>
+        </div>
+    </div>
+    @if (role == "1")
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Category Management</h5>
+                    <p class="card-text">Organize news by categories.</p>
+                    <a href="/Categories/Index" class="btn btn-primary">Manage Categories</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">My News History</h5>
+                    <p class="card-text">View your created news articles.</p>
+                    <a href="/News/MyNews" class="btn btn-primary">View My News</a>
+                </div>
+            </div>
+        </div>
+    }
+    @if (role == "0")
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Account Management</h5>
+                    <p class="card-text">Manage system accounts.</p>
+                    <a href="/Accounts/Index" class="btn btn-primary">Manage Accounts</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Statistics Report</h5>
+                    <p class="card-text">Generate news statistics by date range.</p>
+                    <a href="/Statistics/Index" class="btn btn-primary">View Statistics</a>
+                </div>
+            </div>
+        </div>
+    }
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <h5 class="card-title">Profile</h5>
+                <p class="card-text">Update your profile information.</p>
+                <a href="/Profile/Index" class="btn btn-primary">Edit Profile</a>
+            </div>
+        </div>
+    </div>
+</div>

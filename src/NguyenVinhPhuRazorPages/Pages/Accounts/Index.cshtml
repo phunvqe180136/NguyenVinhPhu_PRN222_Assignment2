@@ -1,0 +1,213 @@
+@page
+@model FUNewsManagement.RazorPages.Pages.Accounts.IndexModel
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Account Management";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Account Management</h2>
+    <button class="btn btn-primary" onclick="showCreateModal()">Create New Account</button>
+</div>
+
+<form method="get" class="mb-4">
+    <div class="row">
+        <div class="col-md-6">
+            <input type="text" class="form-control" placeholder="Search by name or email..." 
+                   asp-for="SearchTerm" />
+        </div>
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-secondary w-100">Search</button>
+        </div>
+    </div>
+</form>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var account in Model.Accounts)
+        {
+            <tr>
+                <td>@account.AccountID</td>
+                <td>@account.AccountName</td>
+                <td>@account.AccountEmail</td>
+                <td>
+                    @if (account.AccountRole == 1)
+                    {
+                        <span class="badge bg-primary">Staff</span>
+                    }
+                    else if (account.AccountRole == 2)
+                    {
+                        <span class="badge bg-info">Lecturer</span>
+                    }
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-primary" onclick="showEditModal('@account.AccountID')">Edit</button>
+                    <button class="btn btn-sm btn-danger" onclick="confirmDelete('@account.AccountID')">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (!Model.Accounts.Any())
+{
+    <div class="alert alert-info">No accounts found.</div>
+}
+
+<div class="modal fade" id="accountModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalTitle">Create Account</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="accountId" />
+                <div class="mb-3">
+                    <label class="form-label">Account Name *</label>
+                    <input type="text" class="form-control" id="accountName" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email *</label>
+                    <input type="email" class="form-control" id="accountEmail" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password *</label>
+                    <input type="password" class="form-control" id="accountPassword" required />
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Role *</label>
+                    <select class="form-select" id="accountRole" required>
+                        <option value="1">Staff</option>
+                        <option value="2">Lecturer</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="saveAccount()">Save</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="deleteModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to delete this account?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="errorModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger">Error</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p id="errorMessage"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function showCreateModal() {
+            document.getElementById('modalTitle').textContent = 'Create Account';
+            document.getElementById('accountId').value = '';
+            document.getElementById('accountName').value = '';
+            document.getElementById('accountEmail').value = '';
+            document.getElementById('accountPassword').value = '';
+            document.getElementById('accountRole').value = '1';
+            document.getElementById('accountPassword').required = true;
+            new bootstrap.Modal(document.getElementById('accountModal')).show();
+        }
+
+        async function showEditModal(id) {
+            const response = await fetch(`/Accounts/GetById/${id}`);
+            const account = await response.json();
+            
+            document.getElementById('modalTitle').textContent = 'Edit Account';
+            document.getElementById('accountId').value = account.accountID;
+            document.getElementById('accountName').value = account.accountName;
+            document.getElementById('accountEmail').value = account.accountEmail;
+            document.getElementById('accountPassword').value = '';
+            document.getElementById('accountPassword').required = false;
+            document.getElementById('accountRole').value = account.accountRole;
+            
+            new bootstrap.Modal(document.getElementById('accountModal')).show();
+        }
+
+        async function saveAccount() {
+            const id = document.getElementById('accountId').value;
+            const password = document.getElementById('accountPassword').value;
+            
+            const account = {
+                accountID: id ? parseInt(id) : 0,
+                accountName: document.getElementById('accountName').value,
+                accountEmail: document.getElementById('accountEmail').value,
+                accountRole: parseInt(document.getElementById('accountRole').value),
+                accountPassword: password || null
+            };
+
+            const url = id ? `/Accounts/Edit/${id}` : '/Accounts/Create';
+            const method = id ? 'PUT' : 'POST';
+
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(account)
+            });
+
+            if (response.ok) {
+                bootstrap.Modal.getInstance(document.getElementById('accountModal')).hide();
+                location.reload();
+            } else {
+                const error = await response.text();
+                document.getElementById('errorMessage').textContent = error || 'Error saving account';
+                new bootstrap.Modal(document.getElementById('errorModal')).show();
+            }
+        }
+
+        function confirmDelete(id) {
+            document.getElementById('confirmDeleteBtn').onclick = async () => {
+                const response = await fetch(`/Accounts/Delete/${id}`, { method: 'DELETE' });
+                if (response.ok) {
+                    bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+                    location.reload();
+                } else {
+                    const error = await response.text();
+                    bootstrap.Modal.getInstance(document.getElementById('deleteModal')).hide();
+                    document.getElementById('errorMessage').textContent = error || 'Error deleting account';
+                    new bootstrap.Modal(document.getElementById('errorModal')).show();
+                }
+            };
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+}

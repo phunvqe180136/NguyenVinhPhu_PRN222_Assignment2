@@ -1,0 +1,100 @@
+﻿@inject Microsoft.AspNetCore.Http.IHttpContextAccessor HttpContextAccessor
+@{
+    var httpContext = HttpContextAccessor.HttpContext;
+    var accountRole = httpContext?.Session.GetString("AccountRole");
+    var accountName = httpContext?.Session.GetString("AccountName");
+    var isLoggedIn = !string.IsNullOrEmpty(accountRole);
+    int role = isLoggedIn ? int.Parse(accountRole ?? "-1") : -1;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - FU News Management</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container">
+            <a class="navbar-brand" href="/">FU News Management</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/">Home</a>
+                    </li>
+                    @if (isLoggedIn)
+                    {
+                        @if (role == 1)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="/News/Index">News</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/Categories/Index">Categories</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/News/MyNews">My News</a>
+                            </li>
+                        }
+                        @if (role == 0)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="/Accounts/Index">Accounts</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="/Statistics/Index">Statistics</a>
+                            </li>
+                        }
+                        @if (role == 2)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" href="/News/Index">News</a>
+                            </li>
+                        }
+                    }
+                </ul>
+                <ul class="navbar-nav">
+                    @if (isLoggedIn)
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown">
+                                @accountName
+                            </a>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="/Profile/Index">Profile</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="/Auth/Logout">Logout</a></li>
+                            </ul>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item">
+                            <a class="nav-link" href="/Auth/Login">Login</a>
+                        </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mt-4">
+        @RenderBody()
+    </div>
+
+    <footer class="footer mt-5 py-3 bg-light">
+        <div class="container text-center">
+            <span class="text-muted">FU News Management System &copy; 2026</span>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
